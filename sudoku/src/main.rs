@@ -1,76 +1,69 @@
-use std::io;
+fn check_sudoku_board(board: [[u8; 9]; 9]) -> bool {
+    // wiersze
+    for r in 0..9 {
+        let mut seen = [false; 10];
+        for c in 0..9 {
+            let val = board[r][c];
+            if val == 0 { continue; }
+            if val > 9 || seen[val as usize] {
+                return false;
+            }
+            seen[val as usize] = true;
+        }
+    }
+
+    // kolumny
+    for c in 0..9 {
+        let mut seen = [false; 10];
+        for r in 0..9 {
+            let val = board[r][c];
+            if val == 0 { continue; }
+            if val > 9 || seen[val as usize] {
+                return false;
+            }
+            seen[val as usize] = true;
+        }
+    }
+
+    // kwadraty 3x3
+    for row_start in (0..9).step_by(3) {
+        for col_start in (0..9).step_by(3) {
+            
+            let mut seen = [false; 10];
+
+            for r in 0..3 {
+                for c in 0..3 {
+                    let val = board[row_start + r][col_start + c];
+                    if val == 0 { continue; }
+                    if val > 9 || seen[val as usize] {
+                        return false; 
+                    }
+                    seen[val as usize] = true;
+                }
+            }
+            
+        }
+    }
+
+    true 
+}
 
 fn main() {
-    let mut board = [[' '; 3]; 3];
-    let mut current_player = 'X';
+    let board = [
+        [5, 3, 0, 0, 7, 0, 0, 0, 0],
+        [6, 0, 0, 1, 9, 5, 0, 0, 0],
+        [0, 9, 8, 0, 0, 0, 0, 6, 0],
+        [8, 0, 0, 0, 6, 0, 0, 0, 3],
+        [4, 0, 0, 8, 0, 3, 0, 0, 1],
+        [7, 0, 0, 0, 2, 0, 0, 0, 6],
+        [0, 6, 0, 0, 0, 0, 2, 8, 0],
+        [0, 0, 0, 4, 1, 9, 0, 0, 5],
+        [0, 0, 0, 0, 8, 0, 0, 7, 9]
+    ];
 
-    loop {
-
-        println!("{:?}",board[0]);
-        println!("{:?}",board[1]);
-        println!("{:?}",board[2]);
-
-        println!("\nGracz {}, Twój ruch (1-9):", current_player);
-
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).expect("Błąd odczytu");
-        
-        let input = input.trim().parse::<usize>();
-        
-        let position = if let Ok(num) = input {
-            if num >= 1 && num <= 9 { num } else { 
-                println!("Liczba poza zakresem!"); 
-                continue; 
-            }
-        } else {
-            println!("To nie jest liczba!");
-            continue;
-        };
-
-        let row = (position - 1) / 3;
-        let col = (position - 1) % 3;
-
-        if board[row][col] != ' ' {
-            println!("Pole zajęte! Spróbuj ponownie.");
-            continue;
-        }
-
-        board[row][col] = current_player;
-
-        let mut win = false;
-
-        // sprawdzenie wygranej
-
-        for i in 0..3 {
-            if board[i][0] == current_player && board[i][1] == current_player && board[i][2] == current_player { win = true; }
-            if board[0][i] == current_player && board[1][i] == current_player && board[2][i] == current_player { win = true; }
-        }
-
-        if board[0][0] == current_player && board[1][1] == current_player && board[2][2] == current_player { win = true; }
-        if board[0][2] == current_player && board[1][1] == current_player && board[2][0] == current_player { win = true; }
-
-        if win {
-            println!("\nGRACZ {} WYGRYWA!", current_player);
-            break;
-        }
-
-        // sprawdzenie remisu
-        let mut has_empty_space = false;
-        for r in 0..3 {
-            for c in 0..3 {
-                if board[r][c] == ' ' { has_empty_space = true; }
-            }
-        }
-        
-        if !has_empty_space {
-            println!("Remis!");
-            break;
-        }
-
-        if current_player == 'X' {
-            current_player = 'O';
-        } else {
-            current_player = 'X';
-        }
+    if check_sudoku_board(board) {
+        println!("Plansza jest poprawna!");
+    } else {
+        println!("Plansza zawiera błędy.");
     }
 }
